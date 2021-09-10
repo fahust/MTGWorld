@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "98248711965",
+    "project_id": "magicfrench-71f70",
+    "storage_bucket": "magicfrench-71f70.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:98248711965:android:8b14ae75b86edf4b414bf4",
+        "android_client_info": {
+          "package_name": "com.magicfrench"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "98248711965-44s81ddjv1u6ugpsmhaqhtfmo5s1beol.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfzrME9iVNUF46kawWTuoeIrVf6qEcm3o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "98248711965-44s81ddjv1u6ugpsmhaqhtfmo5s1beol.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
