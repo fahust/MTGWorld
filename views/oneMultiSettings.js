@@ -36,6 +36,8 @@ import * as Animatable from 'react-native-animatable';
 
 endEditDescription = () => {
   this.sortFunction();
+  if(this.props.oneNavigateType=='deck')
+      this.props.pro.lastDeckUpdate = this.props.route.params.item;
   storeData(this.props.pro);
   this.props.setPro({});
 }
@@ -71,7 +73,7 @@ setDescription = (text,item) => {
         <View style={{flexDirection:"row"}}>
           <Icon style={{padding:20}} name="search" size={40} color="white" />
           <View>
-            <Text style={{color:"white",fontSize:20,fontWeight:"bold",padding:5}}>Looking for an image card ?</Text>
+            <Text style={{color:"white",fontSize:20,fontWeight:"bold",padding:5}}>Looking for an image ?</Text>
             <Text style={{color:"white",fontSize:16,padding:5,width:Dimensions.get('window').width/1.55}}>Use quick search to find and change image of deck {this.props.collections?"collection":'deck : '+this.use.title}.</Text>
           </View>
         </View>

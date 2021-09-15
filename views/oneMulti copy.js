@@ -110,7 +110,6 @@ function arrayUnique(array) {
   }
 
 sortFunction(){
-  //if(this.props.collections)console.log(this.use);
       var uncomon = 0;
       var common = 0;
       var rare = 0;

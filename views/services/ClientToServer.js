@@ -1,13 +1,15 @@
 import { StyleSheet, Dimensions} from 'react-native';
 
 export default async function App(pro) {
-
+    if(pro.noSendModif==true){
+      pro.noSendModif=false
+    }else{
     try{
       fetch('http://'+pro.url+'/datasTopDecks', {
         method: 'POST',
         credentials: 'same-origin',
         mode: 'same-origin',
-        body: JSON.stringify({'decks':pro.decks,'idClient':pro.idClient,'name':pro.nameClient,'nbrCards':Object.keys(pro.collections.cards).length}),
+        body: JSON.stringify({'decks':pro.lastDeckUpdate!=undefined?{[pro.lastDeckUpdate]:pro.decks[pro.lastDeckUpdate]}:pro.decks,'idClient':pro.idClient,'name':pro.nameClient,'nbrCards':Object.keys(pro.collections.cards).length}),
         headers: {
           'Accept':       'application/json',
           'Content-Type': 'application/json'
@@ -15,6 +17,9 @@ export default async function App(pro) {
       }).then((response) => {return response.json();}) 
       .then((data) => {
         pro.topDecks = data.topDecks;
+        if(pro.lastDeckUpdate!=undefined){
+          pro.lastDeckUpdate=undefined;
+        }else{
           fetch('http://'+pro.url+'/datasTopCards', {
           method: 'POST',
           credentials: 'same-origin',
@@ -48,6 +53,7 @@ export default async function App(pro) {
           .catch((error) => {
             console.error('net error',error);
           });
+        }
       })
       .catch((error) => {
         console.error('net error',error);
@@ -55,6 +61,8 @@ export default async function App(pro) {
     } catch (e) {
       console.error('net error',error);
     }
+      
+  }
 
 }
 

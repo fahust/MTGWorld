@@ -40,6 +40,8 @@ const Tab = createMaterialTopTabNavigator();
   changeMode = (text) =>{
     this.toast.show('Deck format updated', 2000);
     this.use.mode = text;
+    if(this.props.oneNavigateType=='deck')
+        this.props.pro.lastDeckUpdate = this.props.route.params.item;
     storeData(this.props.pro);
     this.setState({})
     this.props.setPro({});

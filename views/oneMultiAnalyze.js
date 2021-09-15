@@ -73,7 +73,6 @@ function arrayUnique(array) {
   }
 
 sortFunction(){
-  //if(this.props.collections)console.log(this.use);
     var colors = []
     this.state.courbeDeMana = {
       1:0,

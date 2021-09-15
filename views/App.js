@@ -7,9 +7,17 @@ import stacksCollections from './collections/stacksCollections';
 import stacksAbilities from './abilities/stacksAbilities';
 import stacksRulings from './rulings/stacksRulings';
 import stacksPlayers from './players/stacksPlayers';
+import stacksHomePage from './homepage/stacksHomePage';
 
 import storeData from './services/StoreData';
 import clientToServer from './services/ClientToServer';
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerItem,
+} from '@react-navigation/drawer';
+
 
 
 
@@ -24,10 +32,12 @@ import {
   Image,
   Dimensions,
   ImageBackground,
-  SafeAreaView
+  SafeAreaView,
+  View,
+  Text,
+  TouchableHighlight,
 } from 'react-native';
 
-import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer,DefaultTheme  } from '@react-navigation/native';
 import {connect} from 'react-redux';
 import {setPro} from '../redux/ProActions';
@@ -53,7 +63,7 @@ import Dialog from "react-native-dialog";
         'Content-Type': 'application/json'
       },
       }).then((response) => response.json())
-      .then((json) => {//console.log('test',json)//this.props.pro.symbols
+      .then((json) => {
         json.data.forEach(element => {
           this.props.pro.symbols[element.symbol] = element.svg_uri;
         });
@@ -98,7 +108,6 @@ import Dialog from "react-native-dialog";
       const value = await AsyncStorage.getItem('decks');
       if (value !== null) {
         var load = JSON.parse(value);
-        //console.log(load.collectionsCards)
         this.props.pro.decks = load.decks;
         this.props.pro.wishlists = load.wishlists;
         this.props.pro.idClient = load.idClient;
@@ -143,6 +152,49 @@ import Dialog from "react-native-dialog";
     this.props.setPro({});
   }
 
+  CustomDrawerContent(props) {
+    const width = Dimensions.get('window').width * 0.3;
+    const filteredProps = {
+      ...props,
+      state: {
+        ...props.state,
+        routeNames: props.state.routeNames.filter(
+          (routeName) => {
+            return routeName != 'homepage'
+          },
+        ),
+        routes: props.state.routes.filter(
+          (route) =>{
+            return route.name != 'homepage'
+          },
+        ),
+      },
+    };
+  
+    return (
+      <DrawerContentScrollView {...filteredProps}>
+        <TouchableHighlight onPress={()=>{
+          props.navigation.navigate('homepage');
+        }}><Text style={{fontSize:28,fontWeight:"bold",color:"white",marginVertical:30,alignSelf:"center"}}>MTG - Community</Text></TouchableHighlight>
+
+        <DrawerItemList {...filteredProps}  />
+            {/*<DrawerItem
+              style={{
+                position: 'absolute',
+                left: 0,
+                width: width,
+                height: width,
+              }}
+              label="Screen2"
+              labelStyle={{ color: '#609806' }}
+              onPress={() => {
+                props.navigation.navigate('StackNav');
+              }}
+            />*/}
+      </DrawerContentScrollView>
+    );
+  }
+
   render() {
   const MyTheme = {
     ...DefaultTheme,
@@ -180,9 +232,11 @@ import Dialog from "react-native-dialog";
             activeTintColor: '#7B4E89',
             backgroundColor: '#191919',
             inactiveTintColor:"white",
+            
             labelStyle:{fontSize:20,fontWeight:"bold"}
           }}
-          initialRouteName="stacksDecks">
+          drawerContent={(props) => this.CustomDrawerContent(props)}
+          initialRouteName="homepage">
             <Drawer.Screen name="stacksDecks" component={stacksDecks} options={{
                 drawerLabel: "My Decks",
                 drawerIcon: ({ color }) => <Image style={{width:30,height:30,margin:0,tintColor:"white"}} source={DecksImg} />
@@ -215,6 +269,19 @@ import Dialog from "react-native-dialog";
                 drawerLabel: "Rulings",
                 drawerIcon: ({ color }) => <Image style={{width:30,height:30,margin:0,tintColor:"white"}} source={DecksImg} />
             }} />
+            <Drawer.Screen options={{
+                drawerLabel: "Rulings",}} name="homepage" labelStyle={{height:0}} component={stacksHomePage} 
+            
+            headerStyle={{height:0}} drawerActiveTintColor="rga(0,0,0,0)" options={{
+                drawerLabel: () => null,
+                title: null,
+                drawerIcon: () => null,
+                headerShown: false , hidden: true,
+                drawerLabelStyle:{height:0,zIndex:-999,backgroundColor:"rga(50,50,50,1)"},
+                drawerItemStyle:{height:0,zIndex:-999},
+                drawerActiveTintColor:"rga(0,0,0,0)"
+                
+            }} />
           </Drawer.Navigator>
         </NavigationContainer>
         </SafeAreaView>
@@ -232,6 +299,23 @@ const imageWidth = dimensions.width;
 
   
  const styles = StyleSheet.create({
+  circleContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    padding: 10,
+  },
+  menuContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  },
+  menuItemsCard: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+  },
   sectionContainer: {
     marginTop: 32,
     paddingHorizontal: 24,

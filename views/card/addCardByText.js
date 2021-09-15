@@ -247,6 +247,7 @@ addToDeck= async (key) =>{
     this.toast.show("Image deck added", 2000);
     this.props.pro.decks[this.props.route.params.item].image = this.deleteDatas(this.state.autocompleteObject[key]);
     this.setState({});
+    this.props.pro.lastDeckUpdate = this.props.route.params.item;
     storeData(this.props.pro,false);
     this.props.route.params.functionReload();
   }else if((!this.state.autocompleteObject[key].count || this.state.autocompleteObject[key].count < 4)&&(Object.keys(this.props.pro.decks[this.props.route.params.item].cards).length<=99)){
@@ -257,6 +258,7 @@ addToDeck= async (key) =>{
     this.setState({});
     //this.props.setPro({});
     //this.props.route.params.functionReload();
+    this.props.pro.lastDeckUpdate = this.props.route.params.item;
     storeData(this.props.pro,false);
   }
 }
@@ -276,6 +278,7 @@ addToWishlists= (key) =>{
     this.setState({});
     //this.props.setPro({});
     //this.props.route.params.functionReload();
+    this.props.pro.noSendModif = true;
     storeData(this.props.pro,false);
   }
 }
@@ -299,6 +302,7 @@ subToDeck= (key) =>{
     this.setState({});
     //this.props.setPro({});
     //this.props.route.params.functionReload();
+    this.props.pro.lastDeckUpdate = this.props.route.params.item;
     storeData(this.props.pro,false);
   }
 }
@@ -323,6 +327,7 @@ subToDeck= (key) =>{
     this.setState({});
     //this.props.setPro({});
     //this.props.route.params.functionReload();
+    this.props.pro.noSendModif = true;
     storeData(this.props.pro,false);
   }
 }
@@ -333,9 +338,9 @@ subToDeck= (key) =>{
   }
 
 
-  addCardCollection = (card) => {
-    if(!this.state.autocompleteObject[card.id].count) this.state.autocompleteObject[card.id].count = 0;
-    this.state.autocompleteObject[card.id].count += 1;
+  addCardCollection = (card,key) => {//console.log(card)
+    if(!this.state.autocompleteObject[key].count) this.state.autocompleteObject[key].count = 0;
+    this.state.autocompleteObject[key].count += 1;
     
     if(!this.props.pro.collections.cards[card.oracle_id]){
       this.props.pro.collections.cards[card.oracle_id]=1;
@@ -343,16 +348,17 @@ subToDeck= (key) =>{
       this.props.pro.collections.cards[card.oracle_id]++;
     }
     this.props.pro.collectionsCards.cards[Date.now()] = this.deleteDatas(card);
-    this.toast.show("Card "+this.state.autocompleteObject[card.id].name+" added into collection", 2000);
+    this.toast.show("Card "+this.state.autocompleteObject[key].name+" added into collection", 2000);
     this.setState({});
     //this.props.setPro({});
+    this.props.pro.noSendModif = true;
     storeData(this.props.pro,false);
     if(this.props.pro.sortFunctionCollection)this.props.pro.sortFunctionCollection.sortFunction()
   }
 
-  subCardCollection = (card) => {
-    if(!this.state.autocompleteObject[card.id].count) this.state.autocompleteObject[card.id].count = 0;
-    if(this.state.autocompleteObject[card.id].count>0) this.state.autocompleteObject[card.id].count -= 1;
+  subCardCollection = (card,key) => {
+    if(!this.state.autocompleteObject[key].count) this.state.autocompleteObject[key].count = 0;
+    if(this.state.autocompleteObject[key].count>0) this.state.autocompleteObject[key].count -= 1;
 
     if(!this.props.pro.collections.cards[card.oracle_id]){
       this.props.pro.collections.cards[card.oracle_id]=0;
@@ -374,6 +380,7 @@ subToDeck= (key) =>{
     }
     this.setState({});
     //this.props.setPro({});
+    this.props.pro.noSendModif = true;
     storeData(this.props.pro,false);
     if(this.props.pro.sortFunctionCollection) this.props.pro.sortFunctionCollection.sortFunction()
   }
@@ -403,7 +410,7 @@ const imageWidth = dimensions.width;
     start={{ x: 0, y: 0 }}
     end={{ x: 0, y: 1 }}
   >
-    <Toast opacity={1} style={{zIndex:99999}} positionValue={50} position='top' textStyle={{color:'white',fontSize:16,fontWeight:"bold",}} ref={(toast) => this.toast = toast}/>
+    <Toast opacity={1} style={{zIndex:99999}} positionValue={50} position='center' textStyle={{color:'white',fontSize:16,fontWeight:"bold",}} ref={(toast) => this.toast = toast}/>
     <ImageBackground  blurRadius={1} style={{width:Dimensions.get('window').width,height:Dimensions.get('window').height/2,marginTop:Dimensions.get('window').height/3,resizeMode: 'cover',position:"absolute"}} source={backgroundImg} alt="image base" resizeMode="cover" roundedTop="md" imageStyle= {{opacity:0.1}} />
     <View style={{marginBottom:80}} >
         <View style={{flexDirection:"row"}}>
@@ -447,7 +454,7 @@ const imageWidth = dimensions.width;
                     <View style={{padding:5}}>
                       <Text style={{paddingTop:10,fontSize:16,fontWeight:"bold",flex:1,flexWrap:"wrap",maxWidth:imageWidth/2}}>{this.state.autocompleteObject[element].printed_name?this.state.autocompleteObject[element].printed_name:this.state.autocompleteObject[element].name}</Text>
                       <View style={{flexDirection:"row"}}>
-                      {this.props.pro.set[this.state.autocompleteObject[element].set] && this.props.pro.set[this.state.autocompleteObject[element].set].icon && this.props.pro.set[this.state.autocompleteObject[element].set].icon != null && this.state.autocompleteObject[element].set !="afc" && this.props.pro.set[this.state.autocompleteObject[element].set].icon !="gk2"?<SvgUri
+                      {this.props.pro.set && this.props.pro.set[this.state.autocompleteObject[element].set] && this.props.pro.set[this.state.autocompleteObject[element].set] && this.props.pro.set[this.state.autocompleteObject[element].set].icon && this.props.pro.set[this.state.autocompleteObject[element].set].icon != null && this.state.autocompleteObject[element].set !="afc" && this.props.pro.set[this.state.autocompleteObject[element].set].icon !="gk2"?<SvgUri
                         style={styles.innerCircle}
                           fill={this.state.autocompleteObject[element].rarity == "uncommon"?"rgba(192,192,192,0.8)":(this.state.autocompleteObject[element].rarity == "rare"?"gold":(this.state.autocompleteObject[element].rarity == "common"?"black":("orange")))}
                           stroke="white"
@@ -470,11 +477,11 @@ const imageWidth = dimensions.width;
                 <TouchableHighlight activeOpacity={0.9} underlayColor="rgba(255,255,255,0.1)"  onPress={()=>{ this.addToDeck(element)}}><Badge style={{margin:0}} colorScheme="success"><Text style={{margin:0,padding:0}}>Select</Text><Text style={{margin:0,padding:0}}>deck</Text><Text style={{margin:0,padding:0}}>image</Text></Badge></TouchableHighlight>
                 :
                 (this.state.autocompleteObject[element].name != "Nothing" ?<View style={{flexDirection:"row",paddingTop:10}}>
-                  <TouchableHighlight activeOpacity={0.9} underlayColor="rgba(255,255,255,0.1)"  onPress={()=>{ this.props.route.params.collection?this.addCardCollection(this.state.autocompleteObject[element]):(this.props.route.params.type == "deck" ? this.addToDeck(element):this.addToWishlists(element))}}>
+                  <TouchableHighlight activeOpacity={0.9} underlayColor="rgba(255,255,255,0.1)"  onPress={()=>{ this.props.route.params.collection?this.addCardCollection(this.state.autocompleteObject[element],element):(this.props.route.params.type == "deck" ? this.addToDeck(element):this.addToWishlists(element))}}>
                     <Icon style={{paddingRight:10,zIndex:9999}} name="plus-square" size={20} color="black"/>
                   </TouchableHighlight>
                   <Text style={{paddingLeft:5,paddingRight:5}}>{this.state.autocompleteObject[element].count?this.state.autocompleteObject[element].count:0}</Text>
-                  <TouchableHighlight activeOpacity={0.9} underlayColor="rgba(255,255,255,0.1)"  onPress={()=>{this.props.route.params.collection?this.subCardCollection(this.state.autocompleteObject[element]):(this.props.route.params.type == "deck" ? this.subToDeck(element):this.subToWishlists(element))}}>
+                  <TouchableHighlight activeOpacity={0.9} underlayColor="rgba(255,255,255,0.1)"  onPress={()=>{this.props.route.params.collection?this.subCardCollection(this.state.autocompleteObject[element],element):(this.props.route.params.type == "deck" ? this.subToDeck(element):this.subToWishlists(element))}}>
                     <Icon style={{paddingLeft:10,paddingRight:5,zIndex:9999}} name="minus-square" size={20} color="black"/>
                   </TouchableHighlight>
                 </View>:<View></View>)}

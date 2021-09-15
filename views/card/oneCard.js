@@ -135,7 +135,7 @@ getVersionsCards(){
     }
   }
 
-  sendServerData(){
+  sendServerData(){//console.log(this.props.route.params.item.name)
     try {
       fetch('http://'+this.props.pro.url+'/oneCardView', {
             method: 'POST',
@@ -157,8 +157,10 @@ getVersionsCards(){
                 var datasets = []
               }
               Object.keys(data.card.trendPrices).forEach(price => {
-                this.state.trendPrices.labels.push(price)  
-                datasets.push(parseFloat(data.card.trendPrices[price]))
+                if(!isNaN(data.card.trendPrices[price])){
+                  this.state.trendPrices.labels.push(price)
+                  datasets.push(parseFloat(data.card.trendPrices[price]))
+                }
               });
               this.state.trendPrices.datasets.push({
                 data:datasets,
@@ -171,6 +173,7 @@ getVersionsCards(){
             this.state.tempUriBorder = data.card.image_uris.border_crop;
             this.props.route.params.item.image_uris.art_crop = data.card.image_uris.art_crop;
             this.getVersionsCards();
+            this.props.pro.noSendModif = true;
             storeData(this.props.pro);
             this.setState({})
           })
@@ -259,7 +262,8 @@ getVersionsCards(){
   }
 
   addItem = () => {
-    this.state.createType[Date.now()] = {
+    var dateNow = Date.now();
+    this.state.createType[dateNow] = {
       title : this.state.nameCreateDeck,
       cards : {},
       idClient : this.props.pro.idClient,
@@ -270,6 +274,7 @@ getVersionsCards(){
       mode:"standard",
     }
     this.toast.show("Deck created", 2000);
+    this.props.pro.lastDeckUpdate = dateNow;
     storeData(this.props.pro);
     this.props.setPro({});
     this.setState({dialog:false})
@@ -291,6 +296,7 @@ loved = (card) => {
     if(data=="ok"){
       this.toast.show("Card "+card.name+" loved", 2000);
       this.props.pro.loved.push(card.oracle_id);
+      this.props.pro.noSendModif = true;
       storeData(this.props.pro);
       this.setState({})
       //this.props.setPro({});
@@ -318,6 +324,7 @@ unloved = (card) => {
           this.toast.show("Card "+card.name+" unloved", 2000);
           if (this.props.pro.loved.indexOf(card.oracle_id) > -1) 
           this.props.pro.loved.splice(this.props.pro.loved.indexOf(card.oracle_id), 1);
+          this.props.pro.noSendModif = true;
           storeData(this.props.pro);
           this.setState({})
           //this.props.setPro({});
@@ -333,6 +340,7 @@ addToDeck = (deck,card) => {
   if(Object.keys(this.props.pro.decks[deck].cards).length<=99){
     this.toast.show("Card added to deck "+this.props.pro.decks[deck].title, 2000);
     this.props.pro.decks[deck].cards[Date.now()] = card;
+    this.props.pro.lastDeckUpdate = deck;
     storeData(this.props.pro);
   }else{
     this.toast.show("Max cards reached", 2000);
@@ -345,6 +353,7 @@ addToWishlist = (wishlist,card) => {
   if(Object.keys(this.props.pro.wishlists[wishlist].cards).length<=99){
     this.toast.show("Card added to wishlist "+this.props.pro.wishlists[wishlist].title, 2000);
     this.props.pro.wishlists[wishlist].cards[Date.now()] = card;
+    this.props.pro.noSendModif = true;
     storeData(this.props.pro);
   }else{
     this.toast.show("Max cards reached", 2000);
@@ -361,6 +370,7 @@ addCardCollection = (card) => {
   }
   this.toast.show("Card added into collection ", 2000);
   this.props.pro.collectionsCards.cards[Date.now()] = card
+  this.props.pro.noSendModif = true;
   storeData(this.props.pro);
   this.setState({})
   //this.props.setPro({});
@@ -386,6 +396,7 @@ subCardCollection = (card) => {
     }
   }
   this.toast.show("Card deleted from collection ", 2000);
+  this.props.pro.noSendModif = true;
   storeData(this.props.pro);
   this.setState({})
   //this.props.setPro({});
@@ -468,7 +479,7 @@ headerRender = () => {
       </Menu>
       </Animatable.View>
     </View>
-  {!this.state.fullCard && this.props.pro.set[this.props.route.params.item.set].icon && this.props.pro.set[this.props.route.params.item.set].icon != null && this.props.pro.set[this.props.route.params.item.set].icon !="afc" && this.props.pro.set[this.props.route.params.item.set].icon!="gk2"?this.svgCreate(this.props.route.params.item,this.props.pro.set[this.props.route.params.item.set].icon):<></>}
+  {this.props.pro.set && this.props.pro.set[this.props.route.params.item.set] && !this.state.fullCard && this.props.pro.set[this.props.route.params.item.set].icon && this.props.pro.set[this.props.route.params.item.set].icon != null && this.props.pro.set[this.props.route.params.item.set].icon !="afc" && this.props.pro.set[this.props.route.params.item.set].icon!="gk2"?this.svgCreate(this.props.route.params.item,this.props.pro.set[this.props.route.params.item.set].icon):<></>}
   </View>
 }
 
@@ -553,7 +564,6 @@ render() {
               <View style={styles.screenRight}>
                 {this.props.route.params.item.power ? <Text style={{borderBottomColor:"white",borderBottomWidth:0.5,padding:10,color:"white",fontSize:20,fontWeight:"bold",fontStyle:"italic"}}>{this.props.route.params.item.power + " / " + this.props.route.params.item.toughness}</Text>:<></>}
               </View>
-                {/*this.props.route.params.item.prices && this.props.route.params.item.prices.eur ? <Text style={{color:"white",paddingLeft:20,paddingTop:20}}>Prices : {this.props.route.params.item.prices.eur ? this.props.route.params.item.prices.eur+" €" : ''} / {this.props.route.params.item.prices.usd ? this.props.route.params.item.prices.usd+" $" : ''}</Text>:<></>*/}
                 {this.props.route.params.item.rarity ? <Text style={{color:"white",paddingLeft:20,paddingBottom:20,paddingTop:30,textDecorationLine: 'underline'}}>Rarity : {this.props.route.params.item.rarity}</Text>:<></>}
                 {DividerLinear("Trend Prices")}
                 <View style={{flexDirection:"row",textAlign:"center",justifyContent:"center",alignItems:"center",marginTop:-20}}>
