@@ -4,15 +4,15 @@ import {setPro} from '../../redux/ProActions';
 import {bindActionCreators} from 'redux';
 import OneMulti from '../oneMulti';
 
- class OneTopDeck extends Component {
+ class OneDeckView extends Component {
   constructor(properties) {
     super(properties);
   }
   
   render() {
-
+//
   return (
-    <OneMulti route={this.props.route} navigationDrawer={this.props.route.params.navigationDrawer} navigation={this.props.navigation} use={this.props.route.params.decks} title={"Top Deck"} cantUpdate={true} oneNavigateType={'deck'}/>
+    <OneMulti route={this.props.route} navigationDrawer={this.props.route.params.navigationDrawer} navigation={this.props.navigation} use={this.props.route.params.decks} title={"Deck"} cantUpdate={true} oneNavigateType={'deck'}/>
   );
 }
 
@@ -27,4 +27,4 @@ const mapStateToProps = (state) => {
 //Call set functions
 const mapDispatchToProps = (dispatch) => bindActionCreators({setPro}, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(OneTopDeck);
+export default connect(mapStateToProps, mapDispatchToProps)(OneDeckView);

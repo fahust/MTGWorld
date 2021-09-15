@@ -116,7 +116,6 @@ function arrayUnique(array) {
   }
 
 sortFunction(){
-  //if(this.props.collections)console.log(this.use);
       var uncomon = 0;
       var common = 0;
       var rare = 0;
@@ -257,6 +256,8 @@ handleDelete = (item) => {
     if (e !== BreakException) throw e;
   }
   this.sortFunction();
+  if(this.props.oneNavigateType=='deck')
+      this.props.pro.lastDeckUpdate = this.props.item;
   storeData(this.props.pro);
   this.props.setPro({});
 };
@@ -266,6 +267,8 @@ handleAdd = (item) => {
     this.toast.show("Card "+item.name+" added", 2000);
     this.use.cards[Date.now()] = Object.assign({}, item)
     this.sortFunction();
+    if(this.props.oneNavigateType=='deck')
+        this.props.pro.lastDeckUpdate = this.props.item;
     storeData(this.props.pro);
     this.props.setPro({});
   }
@@ -287,6 +290,7 @@ loved = (card) => {
     if(data=="ok"){
       this.props.pro.loved.push(card.oracle_id);
       this.toast.show("Card "+card.name+" loved", 2000);
+      this.props.pro.noSendModif = true;
       storeData(this.props.pro);
       this.setState({})
       //this.props.setPro({});
@@ -314,6 +318,7 @@ unloved = (card) => {
           if (this.props.pro.loved.indexOf(card.oracle_id) > -1) 
           this.props.pro.loved.splice(this.props.pro.loved.indexOf(card.oracle_id), 1);
           this.toast.show("Card "+card.name+" unloved", 2000);
+          this.props.pro.noSendModif = true;
           storeData(this.props.pro);
           this.setState({})
           //this.props.setPro({});
@@ -346,6 +351,8 @@ addSideCard = (item) => {
   }
 
   this.sortFunction();
+  if(this.props.oneNavigateType=='deck')
+      this.props.pro.lastDeckUpdate = this.props.item;
   storeData(this.props.pro);
   this.props.setPro({});
 };
@@ -355,7 +362,7 @@ subSideCard = (item) => {
   try {
     Object.keys(this.use.sideCards).forEach(card => {
       if(this.use.sideCards[card].oracle_id == item){
-        this.toast.show("Card "+this.use.cards[card].name+" deleted from side cards", 2000);
+        this.toast.show("Card "+this.use.sideCards[card].name+" deleted from side cards", 2000);
         if(this.use.sideCards[card].nombre>1){
           this.use.sideCards[card].nombre--;
         }else{
@@ -368,6 +375,8 @@ subSideCard = (item) => {
     if (e !== BreakException) throw e;
   }
   this.sortFunction();
+  if(this.props.oneNavigateType=='deck')
+      this.props.pro.lastDeckUpdate = this.props.item;
   storeData(this.props.pro);
   this.props.setPro({});
 };
@@ -387,6 +396,8 @@ addKeyCard = (item) => {
   }
 
   this.sortFunction();
+  if(this.props.oneNavigateType=='deck')
+      this.props.pro.lastDeckUpdate = this.props.item;
   storeData(this.props.pro);
   this.props.setPro({});
 };
@@ -405,6 +416,8 @@ subKeyCard = (item) => {
     if (e !== BreakException) throw e;
   }
   this.sortFunction();
+  if(this.props.oneNavigateType=='deck')
+      this.props.pro.lastDeckUpdate = this.props.item;
   storeData(this.props.pro);
   this.props.setPro({});
 };
@@ -412,6 +425,8 @@ subKeyCard = (item) => {
 changeMode = (text,index) =>{
   this.toast.show("Deck format updated", 2000);
   this.props.use[index].mode = text;
+  if(this.props.oneNavigateType=='deck')
+      this.props.pro.lastDeckUpdate = this.props.item;
   storeData(this.props.pro);
   this.setState({})
   this.props.setPro({});
@@ -420,6 +435,8 @@ changeMode = (text,index) =>{
 endEditDescription = () => {
   this.toast.show("Deck description edited", 2000);
   this.sortFunction();
+  if(this.props.oneNavigateType=='deck')
+      this.props.pro.lastDeckUpdate = this.props.item;
   storeData(this.props.pro);
   this.props.setPro({});
 }
@@ -457,7 +474,7 @@ SetCard = (item, itemI,type,side = false) => {
     onPress={() => this.props.navigation.navigate('OneCard', {item: deck[item],})}
   >
     <View style={{flexDirection:"row",width:'97%',}}>
-  {this.props.pro.set[deck[item].set].icon && this.props.pro.set[deck[item].set].icon != null && this.props.pro.set[deck[item].set].icon !="afc" && this.props.pro.set[deck[item].set].icon!="gk2"?
+  {this.props.pro.set && this.props.pro.set[deck[item].set] && this.props.pro.set[deck[item].set].icon && this.props.pro.set[deck[item].set].icon != null && this.props.pro.set[deck[item].set].icon !="afc" && this.props.pro.set[deck[item].set].icon!="gk2"?
   <SvgUri
   style={styles.innerCircle}
     fill={deck[item].rarity == "uncommon"?"silver":(deck[item].rarity == "rare"?"gold":(deck[item].rarity == "common"?"darkgrey":("orange")))}

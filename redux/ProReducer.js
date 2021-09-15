@@ -25,6 +25,9 @@ const INITIAL_STATE = {
   alert:"",
   alertOpen:false,
   alertType:"success",
+  lastDeckUpdate:undefined,
+  noSendModif:false,
+  //allNavigation:{},
 };
 
 //Need object assign for re-render component

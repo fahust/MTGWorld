@@ -5,18 +5,14 @@ import {setPro} from '../../redux/ProActions';
 import {bindActionCreators} from 'redux';
 import {createStackNavigator} from '@react-navigation/stack';
 import Burger from '../services/Burger';
-import oneWishlist from './oneWishlist';
 import oneCard from '../card/oneCard';
-import MyWishlists from './myWishlists';
-import addCardByText from '../card/addCardByText';
-import addCardFilter from '../card/addCardFilter';
+import Homepage from './homepage';
+import oneDeckView from './oneDeckView';
 
-
- class StacksWishlist extends Component {
+ class StacksHomePage extends Component {
   constructor(properties) {
     super(properties);
   }
-
   render() {
     const Stack = createStackNavigator();
 
@@ -30,44 +26,16 @@ import addCardFilter from '../card/addCardFilter';
     };
 
   return (
-    <Stack.Navigator initialRouteName={'MyWishlists'}>
+    <Stack.Navigator initialRouteName={'MyDecks'}>
         
         <Stack.Screen
-          name="MyWishlists"
-          component={MyWishlists}
+          name="HomePageView"
+          component={Homepage}
           navigationDrawer={this.props.navigation}
-          type="wishlist"
+          initialParams={{ type: "deck" }}
+          type="deck"
           options={() => ({
-            title: 'My Wishlists',
-            ...stylesHeader,
-          })}
-        />
-        <Stack.Screen
-          name="addCardByText"
-          component={addCardByText}
-          navigationDrawer={this.props.navigation}
-          options={() => ({
-            title: 'Add Card',
-            ...stylesHeader,
-          })}
-        />
-        <Stack.Screen
-          name="addCardFilter"
-          component={addCardFilter}
-          navigationDrawer={this.props.navigation}
-          options={() => ({
-            title: 'Filter',
-            ...stylesHeader,
-          })}
-        />
-      
-        <Stack.Screen
-          name="OneWishlist"
-          component={oneWishlist}
-          navigationDrawer={this.props.navigation}
-          type="wishlist"
-          options={() => ({
-            title: 'Accueil',
+            title: 'HomePage',
             ...stylesHeader,
           })}
         />
@@ -80,7 +48,17 @@ import addCardFilter from '../card/addCardFilter';
             ...stylesHeader,
           })}
         />
-      
+        <Stack.Screen
+          name="OneDeckView"
+          component={oneDeckView}
+          initialParams={{ type: "deck" }}
+          navigationDrawer={this.props.navigation}
+          options={() => ({
+            title: 'Accueil',
+            ...stylesHeader,
+          })}
+        />
+    
     </Stack.Navigator>
   );
 }
@@ -132,4 +110,4 @@ const mapStateToProps = (state) => {
 //Call set functions
 const mapDispatchToProps = (dispatch) => bindActionCreators({setPro}, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(StacksWishlist);
+export default connect(mapStateToProps, mapDispatchToProps)(StacksHomePage);
