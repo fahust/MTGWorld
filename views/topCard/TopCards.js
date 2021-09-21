@@ -116,8 +116,8 @@ Equip {3} ({3}: Attach to target creature you control. Equip only as a sorcery.)
         marginTop:10,}}>
         <ParallaxImage
           source={{ uri: item.thumbnail }}
-          containerStyle={{width:Dimensions.get('window').width,height:'100%',top:0,backgroundColor:"rgba(0,0,0,0)"}}
-          style={{resizeMode: 'cover',top:0}}
+          containerStyle={{width:Dimensions.get('window').width,height:Dimensions.get('window').height/2.65,backgroundColor:"rgba(0,0,0,0)",justifyContent:'flex-start',position: 'absolute',top:0,overflow:"hidden"}}
+          style={{width:Dimensions.get('window').width+100,height:'100%',resizeMode: 'contain',justifyContent:'flex-start',}}
           parallaxFactor={0.4}
           {...parallaxProps}
         />
@@ -296,6 +296,7 @@ accessibilityLabel="choose numbers"
       end={{ x: 0, y: 1 }}
     >
     <ParallaxScroll style={{marginBottom:80}}
+      
       headerFixedBackgroundColor="rgba(25, 25, 25, 0)"
       fadeOutParallaxBackground={false}
       fadeOutParallaxForeground={true}

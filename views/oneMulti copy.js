@@ -74,7 +74,6 @@ function arrayUnique(array) {
       ],
     };
     this.use = this.props.use[this.props.route.params.item]?this.props.use[this.props.route.params.item]:(this.props.use);
-    //console.log(this.use)
   }
 
   tcgPlayer(cardsByType){

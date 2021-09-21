@@ -137,6 +137,7 @@ function editDistance(s1, s2) {
         <View style={{marginBottom:80}} >
 
           <ScrollView style={{marginBottom:5}}
+            
             onScroll={({nativeEvent}) => {
               if (isCloseToBottom(nativeEvent)) {
                 this.addIndexToScroll();

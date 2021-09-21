@@ -1,4 +1,4 @@
-import { StyleSheet,Image, ScrollView, View, TouchableOpacity, ImageBackground,Dimensions, Alert, Linking, KeyboardAvoidingView, TouchableHighlight} from 'react-native';
+import { StyleSheet,Image, ScrollView, View, TouchableOpacity, ImageBackground,Dimensions, Alert, Linking, KeyboardAvoidingView, TouchableHighlight, SafeAreaView} from 'react-native';
 import React, { Component } from 'react';
 import {
   Input,
@@ -26,7 +26,7 @@ import ParallaxScroll from '@monterosa/react-native-parallax-scroll';
 import Ripple from 'react-native-advanced-ripple'
 
 import Toast, {DURATION} from 'react-native-easy-toast'
-import Carousel, { ParallaxImage }  from 'react-native-snap-carousel';
+import Carousel, { ParallaxImage, Pagination }  from 'react-native-snap-carousel';
 
 import DividerLinear from '../services/DividerLinear';
 
@@ -72,13 +72,22 @@ function arrayUnique(array) {
       colors:[],
       filterActive:true,
       entries:[],
+      activeSlide:0,
+      entries2:[
+        {title:'Your decks',text:'',thumbnail:'https://geeko.lesoir.be/wp-content/uploads/2020/07/jeu-video-magic-gathering.jpg',description:'Create decks with the cards you own, and share them with the community',link:'stacksDecks'},
+        {title:'Your wishlists',text:'',thumbnail:'https://images.ctfassets.net/s5n2t79q9icq/56co4Vj4mz9H7IlRK4BbJh/93a95fd1b133870caf193587c9a33802/ZgsqouqyYh.jpg?w=500&fm=webp',description:'Create wishlists to analyse the power of your card sets and optimise your success',link:'stacksWishlist'},
+        {title:'Your collection',text:'',thumbnail:'https://media.wizards.com/2021/images/daily/llHM3PBL8K.png',description:'Identify here all the cards you have',link:'stacksCollections'},
+      ]
     };
   }
 
   componentDidMount(){
-    setTimeout(() => {
-      this.dataBigCard();
-    }, 2000);
+    this.intervalBigCard = setInterval(() => {
+      if(Object.keys(this.props.pro.topDecks).length > 0 && Object.keys(this.props.pro.topCards).length > 0){
+        this.dataBigCard();
+        clearInterval(this.intervalBigCard)
+      }
+    }, 100);
     this.props.navigation.addListener('focus', () => {
       this.props.setPro({});
     });
@@ -174,12 +183,12 @@ function arrayUnique(array) {
     );
   };
 
-  vote = (index) => {
+  vote = (index,decks) => {
     fetch('http://'+this.props.pro.url+'/vote', {
         method: 'POST',
         credentials: 'same-origin',
         mode: 'same-origin',
-        body: JSON.stringify({'deck':index,'idClient':this.props.use[index].idClient}),
+        body: JSON.stringify({'deck':index,'idClient':decks[index].idClient}),
         headers: {
           'Accept':       'application/json',
           'Content-Type': 'application/json'
@@ -188,8 +197,8 @@ function arrayUnique(array) {
       .then((data) => {
         if(data=="ok"){
           this.props.pro.voted.push(index);
-          if(this.props.use[index])
-          this.props.use[index].vote++
+          if(decks[index])
+          decks[index].vote++
           this.props.setPro({});
           this.props.pro.noSendModif = true;
           storeData(this.props.pro);
@@ -200,12 +209,12 @@ function arrayUnique(array) {
       });
   };
 
-  unvote = (index) => {
+  unvote = (index,decks) => {
     fetch('http://'+this.props.pro.url+'/unvote', {
         method: 'POST',
         credentials: 'same-origin',
         mode: 'same-origin',
-        body: JSON.stringify({'deck':index,'idClient':this.props.use[index].idClient}),
+        body: JSON.stringify({'deck':index,'idClient':decks[index].idClient}),
         headers: {
           'Accept':       'application/json',
           'Content-Type': 'application/json'
@@ -215,8 +224,8 @@ function arrayUnique(array) {
         if(data=="ok"){
           if (this.props.pro.voted.indexOf(index) > -1) 
           this.props.pro.voted.splice(this.props.pro.voted.indexOf(index), 1);
-          if(this.props.use[index])
-          this.props.use[index].vote--
+          if(decks[index])
+          decks[index].vote--
           this.props.setPro({});
           this.props.pro.noSendModif = true;
           storeData(this.props.pro);
@@ -251,33 +260,33 @@ function arrayUnique(array) {
 
   dataBigCard= () =>{
     this.state.entries = []
-    //console.log(this.props.pro.topCards)
-      Object.keys(this.props.pro.topCards).forEach((card, itemI)=> {//console.log(this.props.pro.topCards[card])
+      Object.keys(this.props.pro.topCards).forEach((card, itemI)=> {
         this.state.entries.push({title:this.props.pro.topCards[card].name,text:'',thumbnail:this.props.pro.topCards[card].image_uris.art_crop,setName:this.props.pro.topCards[card].set_name,card:this.props.pro.topCards[card]});
       })
 
-    Object.keys(this.props.pro.decks).forEach((deck, itemI)=> {
+    Object.keys(this.props.pro.topDecks).forEach((deck, itemI)=> {
       var uncomon = 0;
       var common = 0;
       var rare = 0;
       var mythic = 0;
       var price = 0;
       var colors = []
-      Object.keys(this.props.pro.decks[deck].cards).forEach((card, itemI)=> {
+      Object.keys(this.props.pro.topDecks[deck].cards).forEach((card, itemI)=> {
         //https://c2.scryfall.com/file/scryfall-symbols/sets/default.svg?1627272000
-        if(this.props.pro.decks[deck].cards[card].rarity == "uncommon") uncomon++
-        if(this.props.pro.decks[deck].cards[card].rarity == "common") common++
-        if(this.props.pro.decks[deck].cards[card].rarity == "rare") rare++
-        if(this.props.pro.decks[deck].cards[card].rarity == "mythic") mythic++
-        if(this.props.pro.decks[deck].cards[card].prices.eur != null) price += parseInt(this.props.pro.decks[deck].cards[card].prices.eur);
-        colors = arrayUnique(colors.concat(this.props.pro.decks[deck].cards[card].color_identity));
+        if(this.props.pro.topDecks[deck].cards[card].rarity == "uncommon") uncomon++
+        if(this.props.pro.topDecks[deck].cards[card].rarity == "common") common++
+        if(this.props.pro.topDecks[deck].cards[card].rarity == "rare") rare++
+        if(this.props.pro.topDecks[deck].cards[card].rarity == "mythic") mythic++
+        if(this.props.pro.topDecks[deck].cards[card].prices.eur != null) price += parseInt(this.props.pro.topDecks[deck].cards[card].prices.eur);
+        colors = arrayUnique(colors.concat(this.props.pro.topDecks[deck].cards[card].color_identity));
       })
-      this.props.pro.decks[deck].uncomon = uncomon
-      this.props.pro.decks[deck].common = common
-      this.props.pro.decks[deck].rare = rare
-      this.props.pro.decks[deck].mythic = mythic
-      this.props.pro.decks[deck].price = price
-      this.props.pro.decks[deck].colors = colors
+      this.props.pro.topDecks[deck].uncomon = uncomon
+      this.props.pro.topDecks[deck].common = common
+      this.props.pro.topDecks[deck].rare = rare
+      this.props.pro.topDecks[deck].mythic = mythic
+      this.props.pro.topDecks[deck].price = price
+      this.props.pro.topDecks[deck].colors = colors
+      console.log('data',this.props.pro.topDecks[deck].uncomon)
     })
     this.setState({})
   }
@@ -322,18 +331,64 @@ function arrayUnique(array) {
         marginTop:10,}}>
         <ParallaxImage
           source={{ uri: item.thumbnail }}
-          containerStyle={{width:Dimensions.get('window').width,height:'100%',top:0,backgroundColor:"rgba(0,0,0,0)"}}
-          style={{resizeMode: 'cover',top:0}}
+          containerStyle={{width:Dimensions.get('window').width,height:Dimensions.get('window').height/2.65,backgroundColor:"rgba(0,0,0,0)",justifyContent:'flex-start',position: 'absolute',top:0,overflow:"hidden"}}
+          style={{width:Dimensions.get('window').width+100,height:'100%',resizeMode: 'contain',justifyContent:'flex-start',}}
           parallaxFactor={0.4}
           {...parallaxProps}
         />
         <TouchableOpacity onPress={() => {
-        this.props.navigation.navigate("OneCard", {item: item.card,route:this.props.route,cantUpdate:false})}} style={{width:Dimensions.get('window').width,height:'100%',top:0,backgroundColor:"rgba(0,0,0,0)",position:"absolute",zIndex:9999}}></TouchableOpacity>
+        this.props.navigation.navigate("OneCardView", {item: item.card,route:this.props.route,cantUpdate:false})}} style={{width:Dimensions.get('window').width,height:'100%',top:0,backgroundColor:"rgba(0,0,0,0)",position:"absolute",zIndex:9999}}></TouchableOpacity>
       <Text style={{width:Dimensions.get('window').width+10,fontSize: 26,fontWeight:"bold",position:"absolute",top:0,color:"white",textAlign:"center",alignSelf:"center",backgroundColor:"rgba(0,0,0,0.5)"}}>{item.title}</Text>
       <Text style={{width:Dimensions.get('window').width+10,fontSize: 20,position:"absolute",bottom:0,color:"white",textAlign:"center",alignSelf:"center",backgroundColor:"rgba(0,0,0,0.5)"}}>{item.setName}</Text>
       <Text>{item.text}</Text>
     </View>
     );
+}
+
+_renderItem2 = ({item, index}, parallaxProps) => {
+  return (
+    <View style={{
+      backgroundColor:"rgba(0,0,0,0)",
+      borderRadius: 0,
+      height: 250,
+      padding: 0,
+      marginTop:10,}}>
+      <ParallaxImage
+        source={{ uri: item.thumbnail }}
+        containerStyle={{width:Dimensions.get('window').width,height:Dimensions.get('window').height/2.65,backgroundColor:"rgba(50,50,50,1)",justifyContent:'flex-start',position: 'absolute',top:0,overflow:"hidden",alignSelf:"center",margin:0,left:0,right:0}}
+        style={{width:Dimensions.get('window').width+100,height:'100%',resizeMode: 'contain',justifyContent:'flex-start',}}
+        parallaxFactor={0.4}
+        {...parallaxProps}
+      />
+      <TouchableOpacity onPress={() => {
+      this.props.navigation.navigate(item.link)}} style={{width:Dimensions.get('window').width,height:'100%',top:0,backgroundColor:"rgba(0,0,0,0)",position:"absolute",zIndex:9999}}></TouchableOpacity>
+    <Text style={{width:Dimensions.get('window').width+10,fontSize: 26,fontWeight:"bold",position:"absolute",top:0,color:"white",textAlign:"center",alignSelf:"center",backgroundColor:"rgba(0,0,0,0.5)"}}>{item.title}</Text>
+    <Text style={{width:Dimensions.get('window').width-100,fontSize: 20,position:"absolute",bottom:0,color:"white",textAlign:"center",alignSelf:"center",backgroundColor:"rgba(0,0,0,0.5)"}}>{item.description}</Text>
+  </View>
+  );
+}
+
+pagination = () => {
+  const { entries2, activeSlide } = this.state;
+  return <View>
+      <Pagination
+        dotsLength={entries2.length}
+        activeDotIndex={activeSlide}
+        containerStyle={{ backgroundColor: 'rgba(0, 0, 0, 0)' }}
+        dotStyle={{
+            width: 10,
+            height: 10,
+            borderRadius: 5,
+            marginHorizontal: 8,
+            backgroundColor: 'rgba(255, 255, 255, 0.92)'
+        }}
+        inactiveDotStyle={{
+            // Define styles for inactive dots here
+        }}
+        inactiveDotOpacity={0.4}
+        inactiveDotScale={0.6}
+      />
+    </View>
 }
 
 DeckList = (props,decks,tthis) => {
@@ -448,7 +503,7 @@ DeckList = (props,decks,tthis) => {
     style={{}}
     colorScheme="emerald"
     icon={<Icon name={props.pro.voted.includes(item)?"thumbs-down":"thumbs-up"} size={20} color="white" />}
-    onPress={() => props.pro.voted.includes(item)?tthis.unvote(item):tthis.vote(item)}/>
+    onPress={() => props.pro.voted.includes(item)?tthis.unvote(item,decks):tthis.vote(item,decks)}/>
   </View>}
 </Box>
   </View>
@@ -493,8 +548,9 @@ DeckList = (props,decks,tthis) => {
       <ParallaxScroll style={{marginBottom:80}}
       headerFixedBackgroundColor="rgba(25, 25, 25, 1)"
       headerBackgroundColor="rgba(25, 25, 25, 0)"
-      fadeOutParallaxBackground={true}
-      fadeOutParallaxForeground={true}
+      fadeOutParallaxBackground={false}
+      fadeOutParallaxForeground={false}
+      
       headerHeight={200}
       parallaxHeight={250}
       parallaxHeight={this.state.fullCard?dimensions.height-130:imageHeight}
@@ -516,8 +572,10 @@ DeckList = (props,decks,tthis) => {
         <ImageBackground  blurRadius={0} style={{width:Dimensions.get('window').width*1.5,height:130,resizeMode: 'cover',}} source={backgroundImg} alt="image base" resizeMode="cover" roundedTop="md" >
           </ImageBackground>
       <Center flex={1}>
-        <VStack space={4} flex={1} w="100%" mt={4}>
+        <VStack space={4} flex={1} w="100%" mt={0}>
         <Carousel layout={'default'} 
+          autoplayInterval={3000}
+          autoplayDelay={4000}
           autoplay={true}
           loop={true}
           //autoplayInterval
@@ -531,7 +589,7 @@ DeckList = (props,decks,tthis) => {
           sliderWidth={Dimensions.get('window').width+10}
           itemWidth={Dimensions.get('window').width+10}
           hasParallaxImages={true}/>
-        {this.state.entries.length>0?DividerLinear("Top Cards",0):<></>}
+        <TouchableHighlight activeOpacity={0.9} underlayColor="rgba(255,255,255,0.1)" onPress={()=>{props.navigation.navigate("stacksTopCards")}}>{this.state.entries.length>0?DividerLinear("Top Cards",0):<></>}</TouchableHighlight>
 
           {Object.keys(this.props.pro.decks).length<=0?<TouchableHighlight activeOpacity={0.9} underlayColor="rgba(255,255,255,0.1)" onPress={() => {
            props.navigation.navigate("stacksDecks")
@@ -550,20 +608,49 @@ DeckList = (props,decks,tthis) => {
           <View style={{flexDirection:"row",alignSelf:"center",alignContent:"center",marginVertical:50}}>
 
           {Object.keys(this.props.pro.topCards).slice(0, 5).map((card, itemI)=> {
-          return <View style={{margin:-20,
+          return <TouchableOpacity  onPress={() => {
+            this.props.navigation.navigate("OneCardView", {item: this.props.pro.topCards[card],route:this.props.route,cantUpdate:false})}} style={{margin:-20,
             transform: [{ rotate: -45+(itemI*20)+"deg" }]
           }}>
-          <Image style={{width:100,height:140}} source={{ uri : this.props.pro.topCards[card].image_uris.border_crop }} />
-        </View>
+          <Image style={{width:100,height:150}} source={{ uri : this.props.pro.topCards[card].image_uris.border_crop }} />
+        </TouchableOpacity>
           })
           }
           </View>
 
-          {DividerLinear("Top decks",0)}
+          <LinearGradient
+            colors={["rgba(0,0,0,0)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)", "rgba(35,35,30,1)", "rgba(35,35,30,1)", "rgba(35,35,30,1)", "rgba(35,35,30,1)", "rgba(35,35,30,1)", "rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)","rgba(35,35,30,1)", "rgba(35,35,30,1)","rgba(0,0,0,0)"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+          >
+          <View  style={{paddingLeft:50,paddingRight:50,paddingTop:20,paddingBottom:0,left:0,right:0}}>
+            <Carousel layout={'default'}
+            onSnapToItem={(index) => this.setState({ activeSlide: index }) }
+            autoplayDelay={20} 
+            autoplay={false}
+            loop={false}
+            inactiveSlideOpacity={1}
+            inactiveSlideScale={1}
+            lockScrollWhileSnapping={true}
+            enableMomentum={true}
+            ref={(c) => { this._carousel2 = c; }}
+            data={this.state.entries2}
+            renderItem={this._renderItem2}
+            sliderWidth={Dimensions.get('window').width-100}
+            itemWidth={Dimensions.get('window').width-100}
+            hasParallaxImages={true}/>
+            { this.pagination() }
+
+            {this.props.pro.setName && Object.keys(this.props.pro.setName).length>0?<TouchableHighlight activeOpacity={0.9} style={{borderWidth:2,borderColor:"purple",backgroundColor:"rgba(0,0,0,0)",width:120,justifyContent:"center",alignItems:"center",alignSelf:"center",marginBottom:25,marginTop:-5}} underlayColor="rgba(255,255,255,0.1)" onPress={()=>{props.navigation.navigate("allSets")}}><Text style={{fontWeight:"bold",color:"purple",fontSize:20}}>ALL SETS</Text></TouchableHighlight>:<></>}
+          </View>
+            </LinearGradient>
+
+          
+          <TouchableHighlight activeOpacity={0.9} underlayColor="rgba(255,255,255,0.1)" onPress={()=>{props.navigation.navigate("stacksTopDecks")}}>{DividerLinear("Top decks",0)}</TouchableHighlight>
+
           {this.DeckList(props,props.pro.topDecks,tthis)}
 
           {/*DividerLinear("Sets",0)*/}
-          
           
           {/*Object.keys(this.props.pro.decks).length>0?DividerLinear("Your decks",0):<></>*/}
           {/*Object.keys(this.props.pro.decks).length>0?

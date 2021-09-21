@@ -21,7 +21,7 @@ export default async function App(pro,sendNet=true) {
           lang:pro.lang,
         }),
       );
-      if(sendNet == true){clientToServer(pro);} 
+      if(sendNet == true){pro = await clientToServer(pro);} 
     } catch (e) {
       console.log('saving error', e);
     }

@@ -81,7 +81,6 @@ function arrayUnique(array) {
       ],
     };
     this.use = this.props.use[this.props.item]?this.props.use[this.props.item]:(this.props.use);
-    //console.log(this.use)
   }
 
   tcgPlayer(cardsByType){
@@ -549,7 +548,8 @@ SetCard = (item, itemI,type,side = false) => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
   <ScrollView style={{marginBottom:190}}
-  stickyHeaderIndices={[1,3,5,7,9,11,13,15,17,19,21,23,25,27,29, 32,34,36]}>
+    
+    stickyHeaderIndices={[1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,32,34,36]}>
       <View>
       {(!this.props.cantUpdate&&Object.keys(this.use.cards).length<=0)||this.props.collections?
           <TouchableHighlight

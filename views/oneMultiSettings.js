@@ -27,7 +27,6 @@ import * as Animatable from 'react-native-animatable';
       inputValue: '',
     };
     this.use = this.props.use[this.props.item]?this.props.use[this.props.item]:(this.props.use);
-    //console.log(this.use)
   }
 
   sortFunction = () => {
@@ -62,7 +61,8 @@ setDescription = (text,item) => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
   <ScrollView style={{marginBottom:190}}
-  stickyHeaderIndices={[2,4,6,8,10,12,14,16,18,20,23]}>
+    
+    stickyHeaderIndices={[2,4,6,8,10,12,14,16,18,20,23]}>
 
     <View>
       {!this.props.cantUpdate?

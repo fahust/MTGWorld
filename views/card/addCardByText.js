@@ -1,4 +1,4 @@
-import { StyleSheet,Image, Text, ScrollView, View, SafeAreaView, Dimensions, ImageBackground,TouchableOpacity,TouchableHighlight,TextInput } from 'react-native';
+import { StyleSheet,Image, Text, ScrollView, View, SafeAreaView, Dimensions, ImageBackground,TouchableOpacity,TouchableHighlight,TextInput, FlatList} from 'react-native';
 import React, { Component } from 'react';
 import {
   Button,Select,CheckIcon,Badge
@@ -338,7 +338,7 @@ subToDeck= (key) =>{
   }
 
 
-  addCardCollection = (card,key) => {//console.log(card)
+  addCardCollection = (card,key) => {
     if(!this.state.autocompleteObject[key].count) this.state.autocompleteObject[key].count = 0;
     this.state.autocompleteObject[key].count += 1;
     
@@ -374,7 +374,6 @@ subToDeck= (key) =>{
           }
         });
       } catch (e) {
-        //console.log('error add collection ',e)
         if (e !== BreakException) throw e;
       }
     }
@@ -389,17 +388,52 @@ subToDeck= (key) =>{
     if(this.state.index<50)
       this.setState({index:this.state.index+10})
   }
+
+  renderItem = ({item,key}) => ( <View key={key} style={{backgroundColor:"rgba(25,25,25,0.5)",flex:1, flexDirection:"row",borderTopWidth:1,borderTopColor:"white",justifyContent:"space-between",paddingBottom:key==this.state.index?50:0}}>
+    <TouchableOpacity activeOpacity={0.9} underlayColor="rgba(255,255,255,0.1)"  onPress={() => {this.state.autocompleteObject[item].name != "Nothing"?this.props.navigation.navigate('OneCard', {item: this.state.autocompleteObject[item],}):''}}>
+      <View style={{flexDirection:"row"}}>
+        {this.state.autocompleteObject[item].name != "Nothing"?<Image resizeMethod={"scale"} style={{width:80,height:80}} source={this.state.autocompleteObject[item].image_uris && this.state.autocompleteObject[item].image_uris.art_crop?{uri:this.state.autocompleteObject[item].image_uris.art_crop}:""}/>:<View></View>}
+        
+        <View style={{padding:5}}>
+          <Text style={{paddingTop:10,fontSize:16,fontWeight:"bold",flex:1,flexWrap:"wrap",maxWidth:imageWidth/2,color:"white"}}>{this.state.autocompleteObject[item].printed_name?this.state.autocompleteObject[item].printed_name:this.state.autocompleteObject[item].name}</Text>
+          <View style={{flexDirection:"row"}}>
+          {this.props.pro.set && this.props.pro.set[this.state.autocompleteObject[item].set] && this.props.pro.set[this.state.autocompleteObject[item].set] && this.props.pro.set[this.state.autocompleteObject[item].set].icon && this.props.pro.set[this.state.autocompleteObject[item].set].icon != null && this.state.autocompleteObject[item].set !="afc" && this.props.pro.set[this.state.autocompleteObject[item].set].icon !="gk2"?<SvgUri
+            style={styles.innerCircle}
+              fill={this.state.autocompleteObject[item].rarity == "uncommon"?"rgba(192,192,192,0.8)":(this.state.autocompleteObject[item].rarity == "rare"?"gold":(this.state.autocompleteObject[item].rarity == "common"?"white":("orange")))}
+              stroke="white"
+              strokeOpacity={0.5}
+              color={this.state.autocompleteObject[item].rarity == "uncommon"?"rgba(192,192,192,0.8)":(this.state.autocompleteObject[item].rarity == "rare"?"gold":(this.state.autocompleteObject[item].rarity == "common"?"white":("orange")))}
+              fillOpacity={1}
+              width="25"
+              height="25"
+              uri={this.props.pro.set[this.state.autocompleteObject[item].set].icon}
+          />:<></>}
+            <Text style={{...styles.innerCircle,paddingTop:2,paddingLeft:3,paddingRight:3,height:25,color:"white"}}>{ConvertText(this.state.autocompleteObject[item].mana_cost,this.state.autocompleteObject[item].lang)}</Text>
+          </View>
+        </View>
+      </View>
+
+      
+
+    </TouchableOpacity>
+    {(this.props.route.params.image==true)?
+    <TouchableOpacity activeOpacity={0.9} underlayColor="rgba(255,255,255,0.1)"  onPress={()=>{ this.addToDeck(item)}}><Badge style={{margin:0}} colorScheme="success"><Text style={{margin:0,padding:0}}>Select</Text><Text style={{margin:0,padding:0}}>deck</Text><Text style={{margin:0,padding:0}}>image</Text></Badge></TouchableOpacity>
+    :
+    (this.state.autocompleteObject[item].name != "Nothing" ?<View style={{flexDirection:"row",paddingTop:10}}>
+      <TouchableOpacity activeOpacity={0.9} underlayColor="rgba(255,255,255,0.1)"  onPress={()=>{ this.props.route.params.collection?this.addCardCollection(this.state.autocompleteObject[item],item):(this.props.route.params.type == "deck" ? this.addToDeck(item):this.addToWishlists(item))}}>
+        <Icon style={{paddingRight:10,zIndex:9999}} name="plus-square" size={20} color="white"/>
+      </TouchableOpacity>
+      <Text style={{paddingLeft:5,paddingRight:5,color:"white"}}>{this.state.autocompleteObject[item].count?this.state.autocompleteObject[item].count:0}</Text>
+      <TouchableOpacity activeOpacity={0.9} underlayColor="rgba(255,255,255,0.1)"  onPress={()=>{this.props.route.params.collection?this.subCardCollection(this.state.autocompleteObject[item],item):(this.props.route.params.type == "deck" ? this.subToDeck(item):this.subToWishlists(item))}}>
+        <Icon style={{paddingLeft:10,paddingRight:5,zIndex:9999}} name="minus-square" size={20} color="white"/>
+      </TouchableOpacity>
+    </View>:<View></View>)}
+  </View>
+  )
     
 
   render(){
     
-const dimensions = Dimensions.get('window');
-const imageHeight = Math.round(dimensions.width * 9 / 16);
-const imageWidth = dimensions.width;
-    
-
-
-
   return (
     <LinearGradient
     colors={['#191919', '#191919']}
@@ -436,8 +470,13 @@ const imageWidth = dimensions.width;
             <Icon style={{paddingLeft:10,zIndex:9999}} name={Object.keys(this.state.autocompleteObject).length<=0?"undo":"window-close"} size={30} color="white"/>
           </TouchableHighlight>
         </View>
-
-        <ScrollView style={{backgroundColor:"white",marginBottom:5}}
+        <FlatList
+          data={Object.keys(this.state.autocompleteObject)}
+          renderItem={this.renderItem}
+          keyExtractor={item => item.id}
+        />
+        {/*<ScrollView style={{backgroundColor:"white",marginBottom:5}}
+          
           onScroll={({nativeEvent}) => {
             if (isCloseToBottom(nativeEvent)) {
               this.addIndexToScroll();
@@ -490,7 +529,7 @@ const imageWidth = dimensions.width;
           })
 
           }
-        </ScrollView>
+        </ScrollView>*/}
 
         
        
@@ -590,6 +629,9 @@ const imageWidth = dimensions.width;
  }
 
 
+ const dimensions = Dimensions.get('window');
+ const imageHeight = Math.round(dimensions.width * 9 / 16);
+ const imageWidth = dimensions.width;
  const styles = StyleSheet.create({
   backgroundStyle:{
     backgroundColor:"black"
