@@ -1,4 +1,4 @@
-import { StyleSheet,Image, ScrollView, View, SafeAreaView, TouchableOpacity,Pressable,Dimensions ,ImageBackground } from 'react-native';
+import { StyleSheet,Image, ScrollView, View, SafeAreaView, TouchableOpacity,Pressable,Dimensions ,ImageBackground,FlatList } from 'react-native';
 import React, { Component } from 'react';
 import {
   Text,
@@ -91,8 +91,6 @@ class ListPlayers extends Component {
         },
       }).then((response) => response.json())
       .then((json) => {
-        //console.log(json.player.decks)
-        //console.log(this.props.navigation)
         this.props.navigation.navigate("MultiDeckPlayer", {decks: json.player.decks,player: json.player.n})
       })
       .catch((error) => {
@@ -104,7 +102,25 @@ class ListPlayers extends Component {
     this.setState({index:this.state.index+10})
   }
 
-  listFunction = () => {
+  renderItem = ({item,key}) =>(((this.state.search == ""||similarity(this.state.search,this.props.pro.players[item].n?this.props.pro.players[item].n:"") > 0.5))?<TouchableOpacity key={key} onPress={()=>{
+      this.onePlayer(item)
+    }}>
+      <View style={{flexDirection:"row",margin:10,justifyContent:"space-between"}}>
+        <View style={{flexDirection:"row"}}>
+          <Image style={{width:30,height:30,marginRight:10,marginLeft:10,tintColor:"white"}} source={DecksImg} />
+          <Text style={{color:"silver",fontSize:16,fontWeight:"bold"}}>  {this.props.pro.players[item].d}</Text>
+        </View>
+        <Text style={{color:"white",fontSize:18,fontWeight:"bold",paddingLeft:30,paddingRight:30,width:Dimensions.get('window').width-155,textAlign:"center",alignSelf:"center",overflow:"hidden"}}>{this.props.pro.players[item].n}</Text>
+        <View style={{flexDirection:"row"}}>
+          <Image style={{width:30,height:30,tintColor:"white"}} source={CollectionsImg} />
+          <Text style={{color:"silver",fontSize:16,fontWeight:"bold"}}>  {this.props.pro.players[item].c}</Text>
+        </View>
+      </View>
+      {DividerLinearFullWidth()}
+    </TouchableOpacity>:<></>
+  )
+
+  /*listFunction = () => { 
     var key = 0;
     return Object.keys(this.props.pro.players).map((player,index)=>{
       if(key<this.state.index){
@@ -129,7 +145,7 @@ class ListPlayers extends Component {
         }
       }
     })
-  }
+  }*/
 
   closeChangeName = () =>{
     if(this.state.name == ""){
@@ -178,6 +194,7 @@ class ListPlayers extends Component {
           onChangeText={search => this.setState({search: search,index:20})}
         />
     <ScrollView style={{marginBottom:80}}
+      
     onScroll={({nativeEvent}) => {
       if (isCloseToBottom(nativeEvent)) {
         this.addIndexToScroll();
@@ -197,7 +214,12 @@ class ListPlayers extends Component {
             </View>
             <Icon style={{textAlignVertical: 'center',padding:15}} name="chevron-right" size={20} color="white" />
           </TouchableOpacity>
-        {this.listFunction()}
+        {/*this.listFunction()*/}
+        <FlatList
+          data={Object.keys(this.props.pro.players)}
+          renderItem={this.renderItem}
+          keyExtractor={item => item.id}
+        />
         </ScrollView>
         </LinearGradient>
     );

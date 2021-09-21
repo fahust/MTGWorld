@@ -20,7 +20,6 @@ import {
 
 
 
-
 var DecksImg = require('./img/DecksImg.png');
 var TopDecksImg = require('./img/TopDecksImg.png');
 var CollectionsImg = require('./img/CollectionsImg.png');
@@ -75,32 +74,50 @@ import Dialog from "react-native-dialog";
   }
 
 
-  sendDataServer(){
-    fetch('https://api.scryfall.com/sets', {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-      }).then((response) => response.json())
-      .then((json) => {
-        //this.fetchAllSymbol();
-        json.data.forEach(set => {
-          //if(set.set_type != "token" && set.set_type != "promo" )
-            this.props.pro.setName[set.code] = {"name":set.name,svg:set.icon_svg_uri};
-          
-          if(set.icon_svg_uri && set.icon_svg_uri != null){
-            this.props.pro.set[set.code] = {icon : set.icon_svg_uri};
-          }else{
-            this.props.pro.set[set.code] = {icon : "https://c2.scryfall.com/file/scryfall-symbols/sets/default.svg?1627272000"};
-          }
-        });
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+  async sendDataServer(){
 
-      clientToServer(this.props.pro);
+    this.props.pro = await clientToServer(this.props.pro);
+      
+    fetch('https://api.scryfall.com/sets', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+    }).then((response) => response.json())
+    .then((json) => {
+      //console.log(json.data)
+      
+      json.data.forEach(set => {
+        if(set.parent_set_code){
+          if(!this.props.pro.setSorted[set.parent_set_code])
+            this.props.pro.setSorted[set.parent_set_code] = {child:{},n:'',"svg":set.icon_svg_uri}
+          this.props.pro.setSorted[set.parent_set_code].child[set.code] = {"name":set.name,"svg":set.icon_svg_uri}
+        }else{
+          if(!this.props.pro.setSorted[set.code]){ 
+            this.props.pro.setSorted[set.code] = {"name":set.name,svg:set.icon_svg_uri,child:{}}
+          }else{
+            this.props.pro.setSorted[set.code]= {"name":set.name,svg:set.icon_svg_uri,child:this.props.pro.setSorted[set.parent_set_code]?this.props.pro.setSorted[set.parent_set_code].child:{}}
+          }
+        }
+
+
+        //if(set.set_type != "token" && set.set_type != "promo" )
+          this.props.pro.setName[set.code] = {"name":set.name,svg:set.icon_svg_uri};
+        
+        if(set.icon_svg_uri && set.icon_svg_uri != null){
+          this.props.pro.set[set.code] = {icon : set.icon_svg_uri};
+        }else{
+          this.props.pro.set[set.code] = {icon : "https://c2.scryfall.com/file/scryfall-symbols/sets/default.svg?1627272000"};
+        }
+      });
+      
+
+      this.props.setPro({});
+    })
+    .catch((error) => {
+      console.error(error);
+    });
   }
 
   getData = async () => {
@@ -122,10 +139,10 @@ import Dialog from "react-native-dialog";
         if(load.lang) this.props.pro.lang = load.lang
         if(!this.props.pro.idClient) this.props.pro.idClient=Date.now();
         this.props.setPro({});
-        this.sendDataServer();
       }else{
         this.props.pro.idClient=Date.now();
       }
+      this.sendDataServer();
     } catch (e) {
       console.log('error reading value', e);
     }

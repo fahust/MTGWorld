@@ -2,10 +2,10 @@ import { StyleSheet, Dimensions} from 'react-native';
 
 export default async function App(pro) {
     if(pro.noSendModif==true){
-      pro.noSendModif=false
+      pro.noSendModif=false;
+      return pro;
     }else{
-    try{
-      fetch('http://'+pro.url+'/datasTopDecks', {
+      return fetch('http://'+pro.url+'/datasTopDecks', {
         method: 'POST',
         credentials: 'same-origin',
         mode: 'same-origin',
@@ -19,8 +19,9 @@ export default async function App(pro) {
         pro.topDecks = data.topDecks;
         if(pro.lastDeckUpdate!=undefined){
           pro.lastDeckUpdate=undefined;
+          return pro;
         }else{
-          fetch('http://'+pro.url+'/datasTopCards', {
+          return fetch('http://'+pro.url+'/datasTopCards', {
           method: 'POST',
           credentials: 'same-origin',
           mode: 'same-origin',
@@ -32,7 +33,7 @@ export default async function App(pro) {
           }).then((response) => {return response.json();}) 
           .then((data) => {
             pro.topCards = data.topCards;
-            fetch('http://'+pro.url+'/datasPlayers', {
+            return fetch('http://'+pro.url+'/datasPlayers', {
             method: 'POST',
             credentials: 'same-origin',
             mode: 'same-origin',
@@ -58,9 +59,6 @@ export default async function App(pro) {
       .catch((error) => {
         console.error('net error',error);
       });
-    } catch (e) {
-      console.error('net error',error);
-    }
       
   }
 

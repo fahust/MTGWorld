@@ -8,12 +8,18 @@ import Burger from '../services/Burger';
 import oneCard from '../card/oneCard';
 import Homepage from './homepage';
 import oneDeckView from './oneDeckView';
+import allSets from './allSets';
+import oneSet from './oneSet';
+
+//import { createSharedElementStackNavigator } from 'react-navigation-shared-element';
 
  class StacksHomePage extends Component {
   constructor(properties) {
     super(properties);
   }
   render() {
+    
+    //const Stack = createSharedElementStackNavigator();
     const Stack = createStackNavigator();
 
     const stylesHeader = {
@@ -26,7 +32,7 @@ import oneDeckView from './oneDeckView';
     };
 
   return (
-    <Stack.Navigator initialRouteName={'MyDecks'}>
+    <Stack.Navigator initialRouteName={'HomePageView'}>
         
         <Stack.Screen
           name="HomePageView"
@@ -40,7 +46,7 @@ import oneDeckView from './oneDeckView';
           })}
         />
         <Stack.Screen
-          name="OneCard"
+          name="OneCardView"
           component={oneCard}
           navigationDrawer={this.props.navigation}
           options={() => ({
@@ -55,6 +61,26 @@ import oneDeckView from './oneDeckView';
           navigationDrawer={this.props.navigation}
           options={() => ({
             title: 'Accueil',
+            ...stylesHeader,
+          })}
+        />
+        <Stack.Screen
+          name="allSets"
+          component={allSets}
+          initialParams={{ type: "deck" }}
+          navigationDrawer={this.props.navigation}
+          options={() => ({
+            title: 'All Sets',
+            ...stylesHeader,
+          })}
+        />
+        <Stack.Screen
+          name="oneSet"
+          component={oneSet}
+          initialParams={{ type: "deck" }}
+          navigationDrawer={this.props.navigation}
+          options={() => ({
+            title: 'One Set',
             ...stylesHeader,
           })}
         />

@@ -10,7 +10,6 @@ import OneMulti from '../oneMulti';
   }
   
   render() {
-    //console.log('item one multi',this.props.route.params.item)
   return (
     <OneMulti navigationDrawer={this.props.route.params.navigationDrawer} route={this.props.route.params.route} navigation={this.props.navigation} use={this.props.route.params.item} title={"My Decks"} oneNavigateType={'deck'} cantUpdate={true} player={this.props.route.params.player}/>
   );

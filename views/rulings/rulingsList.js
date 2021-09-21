@@ -99,26 +99,6 @@ function editDistance(s1, s2) {
     this.setState({index:this.state.index+10})
   }
 
-  /*listFuncton = () => {
-    var BreakException = {};
-    var rulingsLists = <View></View>
-    try {
-      var rulingsLists = Object.keys(rulings).map((ruling,key)=>{
-        //if(key>10) throw BreakException;
-        //console.log(similarity(this.state.search,rulings[ruling].comment))
-        if((this.state.search == ""||similarity(this.state.search,rulings[ruling].comment) > 0.2)&&key<10)
-        return <View style={{flexDirection:"row",padding:10}} key={rulings[ruling].oracle_id+"--"+ruling}>
-            <Text style={{color:"white",fontWeight:"bold",fontSize:20}}>{rulings[ruling].published_at}
-            <Text style={{color:"white",fontSize:16}}>  :  {rulings[ruling].comment}</Text>
-            </Text>
-          </View>
-      })
-    } catch (e) {
-      if (e !== BreakException) throw e;
-    }
-    return rulingsLists;
-  }*/
-
 render() {
   return (
     <LinearGradient
@@ -132,6 +112,7 @@ render() {
   >
     <ImageBackground  blurRadius={1} style={{width:Dimensions.get('window').width,height:Dimensions.get('window').height/2,marginTop:Dimensions.get('window').height/3,resizeMode: 'cover',position:"absolute"}} source={backgroundImg} alt="image base" resizeMode="cover" roundedTop="md" imageStyle= {{opacity:0.1}} />
     <ScrollView style={{marginBottom:80}}
+      
     onScroll={({nativeEvent}) => {
       if (isCloseToBottom(nativeEvent)) {
         this.addIndexToScroll();

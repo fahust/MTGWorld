@@ -83,7 +83,7 @@ function arrayUnique(array) {
   
   addItem = (title) => {
     var dateNow = Date.now();
-    this.props.route.params.item
+    //this.props.route.params.item
     if(this.props.oneNavigate=='OneDeck')
       this.props.pro.lastDeckUpdate = dateNow;
     this.props.use[dateNow] = {
@@ -486,10 +486,11 @@ style={{padding:2}}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ParallaxScroll style={{marginBottom:80}}
+      
       headerFixedBackgroundColor="rgba(25, 25, 25, 1)"
       headerBackgroundColor="rgba(25, 25, 25, 0)"
-      fadeOutParallaxBackground={true}
-      fadeOutParallaxForeground={true}
+      fadeOutParallaxBackground={false}
+      fadeOutParallaxForeground={false}
       headerHeight={200}
       parallaxHeight={250}
       parallaxHeight={this.state.fullCard?dimensions.height-130:imageHeight}

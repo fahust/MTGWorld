@@ -124,12 +124,13 @@ render() {
         />
       </View>
     <ScrollView style={{marginBottom:80}}
-    onScroll={({nativeEvent}) => {
-      if (isCloseToBottom(nativeEvent)) {
-        this.addIndexToScroll();
-      }
-    }}
-    scrollEventThrottle={400}
+      
+      onScroll={({nativeEvent}) => {
+        if (isCloseToBottom(nativeEvent)) {
+          this.addIndexToScroll();
+        }
+      }}
+      scrollEventThrottle={400}
     >
 
       {this.listFunction()}

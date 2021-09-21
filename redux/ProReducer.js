@@ -12,6 +12,7 @@ const INITIAL_STATE = {
   nav:undefined,
   set:{},
   setName:{},
+  setSorted:{},
   voted:[],
   loved:[],
   collections:{cards:{}},

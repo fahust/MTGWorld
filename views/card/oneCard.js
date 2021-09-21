@@ -1,4 +1,4 @@
-import { StyleSheet,Image, ScrollView, View, SafeAreaView, TouchableOpacity, Dimensions, ImageBackground, Linking} from 'react-native';
+import { StyleSheet,Image, ScrollView, View, SafeAreaView, TouchableOpacity, Dimensions, ImageBackground, Linking, FlatList} from 'react-native';
 import React, { Component } from 'react';
 import {
   IconButton,
@@ -123,7 +123,7 @@ getVersionsCards(){
           }).then((response) => {return response.json();})
           .then((data) => {
             if(data.data){
-              this.state.versions = data.data;
+              this.state.versions = data.data.slice(0,30);
               this.setState({})
             }
           })
@@ -135,7 +135,7 @@ getVersionsCards(){
     }
   }
 
-  sendServerData(){//console.log(this.props.route.params.item.name)
+  sendServerData(){
     try {
       fetch('http://'+this.props.pro.url+'/oneCardView', {
             method: 'POST',
@@ -391,7 +391,6 @@ subCardCollection = (card) => {
         }
       });
     } catch (e) {
-      //console.log('error add collection ',e)
       if (e !== BreakException) throw e;
     }
   }
@@ -488,6 +487,24 @@ addIndexToScroll = () => {
     this.setState({index:this.state.index+10})
 }
 
+renderItem = ({item,key}) => (item&&item.image_uris&&item.image_uris.border_crop?<View style={{marginBottom:-Math.round(dimensions.height/9.5)}}>
+  <TouchableOpacity style={{backgroundColor:"#28283C",flexDirection:"row"}} onPress={() => {
+    this.props.navigation.goBack();
+    this.props.navigation.navigate('OneCard', {item: this.deleteDatas(item),noLoadNewImage:true})}}>
+    <View style={{margin:7}}>{!this.state.fullCard && this.props.pro.set[item.set].icon && this.props.pro.set[item.set].icon != null && this.props.pro.set[item.set].icon !="afc" && this.props.pro.set[item.set].icon!="gk2"?this.svgCreate(item,this.props.pro.set[item.set].icon,30):<></>}</View>
+    <Text style={{color:"white",padding:10,marginLeft:30,fontWeight:"bold",fontSize:14}}>{item.set_name}</Text>
+  </TouchableOpacity>
+  <View style={{width:Math.round(dimensions.width),flexDirection:"row",alignItems:"center",alignSelf:"center",alignContent:"center"}}>
+  {item&&item.image_uris&&item.image_uris.border_crop?<ImageModal imageBackgroundColor="rgba(255,255,255,0)" modalImageStyle={{resizeMode:"contain"}} source={{uri: item.image_uris.border_crop}} style={{width:Math.round(dimensions.width/2.5),height:Math.round(dimensions.height/2.5)}} resizeMode={"contain"}/>:<></>}
+  <View style={{justifyContent:"center",padding:20,height:Math.round(dimensions.height/8)}}>
+    {item.prices.eur?<View style={{flexDirection:"row"}}><Text style={{color:"white",margin:10,fontWeight:"bold"}}>Non Foil :</Text><Text style={{color:"white",margin:10}}> {item.prices.eur} €</Text></View>:<View></View>}
+    {item.prices.eur_foil?<View style={{flexDirection:"row"}}><Text style={{color:"white",margin:10,fontWeight:"bold"}}>Foil : </Text><Text style={{color:"white",margin:10}}>{item.prices.eur_foil} €</Text></View>:<View></View>}
+    {item.prices.usd?<View style={{flexDirection:"row"}}><Text style={{color:"white",margin:10,fontWeight:"bold"}}>Non Foil : </Text><Text style={{color:"white",margin:10}}>{item.prices.usd} $</Text></View>:<View></View>}
+    {item.prices.usd_foil?<View style={{flexDirection:"row"}}><Text style={{color:"white",margin:10,fontWeight:"bold"}}>Foil : </Text><Text style={{color:"white",margin:10}}>{item.prices.usd_foil} $</Text></View>:<View></View>}
+  </View>
+</View>
+</View>:<></>)
+
 render() {
   return (
     <LinearGradient
@@ -513,6 +530,7 @@ render() {
     </Dialog.Container>
   
     <ParallaxScroll style={{marginBottom:80}}
+      
             onScroll={({nativeEvent}) => {
               if (isCloseToBottom(nativeEvent)) {
                 this.addIndexToScroll();
@@ -598,26 +616,11 @@ render() {
                 {DividerLinear("Versions")}
 
                 <View style={{justifyContent:"center"}}>
-                  {this.state.versions.map((version,key)=>{
-                    if(version&&version.image_uris&&version.image_uris.border_crop && key<this.state.index)
-                    return <View style={{marginBottom:-Math.round(dimensions.height/9.5)}}>
-                      <TouchableOpacity style={{backgroundColor:"#28283C",flexDirection:"row"}} onPress={() => {
-                        this.props.navigation.goBack();
-                        this.props.navigation.navigate('OneCard', {item: this.deleteDatas(version),noLoadNewImage:true})}}>
-                        <View style={{margin:7}}>{!this.state.fullCard && this.props.pro.set[version.set].icon && this.props.pro.set[version.set].icon != null && this.props.pro.set[version.set].icon !="afc" && this.props.pro.set[version.set].icon!="gk2"?this.svgCreate(version,this.props.pro.set[version.set].icon,30):<></>}</View>
-                        <Text style={{color:"white",padding:10,marginLeft:30,fontWeight:"bold",fontSize:14}}>{version.set_name}</Text>
-                      </TouchableOpacity>
-                      <View style={{width:Math.round(dimensions.width),flexDirection:"row",alignItems:"center",alignSelf:"center",alignContent:"center"}}>
-                      <ImageModal imageBackgroundColor="rgba(255,255,255,0)" modalImageStyle={{resizeMode:"contain"}} source={{uri: version.image_uris.border_crop}} style={{width:Math.round(dimensions.width/2.5),height:Math.round(dimensions.height/2.5)}} resizeMode={"contain"}/>
-                      <View style={{justifyContent:"center",padding:20,height:Math.round(dimensions.height/8)}}>
-                        {version.prices.eur?<View style={{flexDirection:"row"}}><Text style={{color:"white",margin:10,fontWeight:"bold"}}>Non Foil :</Text><Text style={{color:"white",margin:10}}> {version.prices.eur} €</Text></View>:<View></View>}
-                        {version.prices.eur_foil?<View style={{flexDirection:"row"}}><Text style={{color:"white",margin:10,fontWeight:"bold"}}>Foil : </Text><Text style={{color:"white",margin:10}}>{version.prices.eur_foil} €</Text></View>:<View></View>}
-                        {version.prices.usd?<View style={{flexDirection:"row"}}><Text style={{color:"white",margin:10,fontWeight:"bold"}}>Non Foil : </Text><Text style={{color:"white",margin:10}}>{version.prices.usd} $</Text></View>:<View></View>}
-                        {version.prices.usd_foil?<View style={{flexDirection:"row"}}><Text style={{color:"white",margin:10,fontWeight:"bold"}}>Foil : </Text><Text style={{color:"white",margin:10}}>{version.prices.usd_foil} $</Text></View>:<View></View>}
-                      </View>
-                    </View>
-                    </View>
-                  })}
+                  <FlatList
+                    data={this.state.versions}
+                    renderItem={this.renderItem}
+                    keyExtractor={item => item.id}
+                  />
                   
 
                 </View>

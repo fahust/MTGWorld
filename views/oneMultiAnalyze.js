@@ -58,7 +58,6 @@ function arrayUnique(array) {
       ],
     };
     this.use = this.props.use[this.props.item]?this.props.use[this.props.item]:(this.props.use);
-    //console.log(this.use)
   }
   
   componentDidMount(){

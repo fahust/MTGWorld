@@ -135,8 +135,8 @@ android {
         applicationId "com.magicfrench"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "3.0"
+        versionCode 8
+        versionName "0.65"
         multiDexEnabled true
     }
     splits {
